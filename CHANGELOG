@@ -1,0 +1,14 @@
+init_my_ubuntu - CHANGELOG
+==========================
+
+[Legend]
++ Feature Added
+- Feature Removed
+^ Enhancement
+* Bug Fix
+
+[v1.0] 01.05.2014
+
++ Initial release
++ Basic installation of packages
++ Setup AOSP build deps
