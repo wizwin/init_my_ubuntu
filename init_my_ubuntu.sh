@@ -48,7 +48,7 @@ OPT_FLAGS="$NON_INTERACTIVE $SIMULATION"
 
 # Customize what you need to install here in the list below
 # The ones already here are the ones I install by default
-PACKAGES="squid-deb-proxy squid-deb-proxy-client openssh-server vim mc gcc ctags lynx expect ddd doxygen meld idle git gnupg androidsdk-ddms codeblocks eclipse-platform svn-workbench xbmc aptoncd arj autoconf automake apcupsd beep boinc-client bum cabextract ccache cccc cdecl chromium-browser colorgcc colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon libgd2-xpm-dev openjdk-7-jdk build-essential curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386"
+PACKAGES="squid-deb-proxy squid-deb-proxy-client openssh-server vim mc gcc g++ ctags lynx expect ddd doxygen meld idle git gnupg androidsdk-ddms codeblocks eclipse-platform svn-workbench xbmc aptoncd arj autoconf automake apcupsd beep boinc-client bum cabextract ccache cccc cdecl chromium-browser colorgcc colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon libgd2-xpm-dev openjdk-7-jdk build-essential curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386"
 
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
@@ -57,12 +57,26 @@ NORMAL=$(tput sgr0)
 
 #apt-get update
 
+function runPostInstall {
+    if [ "$1" == "squid-deb-proxy" ] ; then
+        # Check if squid is running.
+        # TODO: Make sure it is squid deb proxy
+        pidof squid3 > /dev/null
+        if [ $? -ne 0 ] ; then
+            echo
+            echo Starting squid deb proxy for caching...
+            /etc/init.d/squid-deb-proxy start
+        fi
+    fi
+}
+
 for PACKAGE in $PACKAGES; do
     echo
     printf "%-40s" "Install $PACKAGE... "
     apt-get $OPT_FLAGS install $PACKAGE > /dev/null 2>&1
     if [ $? -eq 0 ] ; then
         printf "${GREEN}Done${NORMAL}"
+        runPostInstall $PACKAGE
     else
         printf "${RED}Failed!${NORMAL}"
     fi
