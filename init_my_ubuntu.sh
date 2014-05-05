@@ -11,7 +11,7 @@
 # Author  : Winny Mathew Kurian (WiZarD)
 # Date    : 3rd May 2014
 # Contact : WiZarD.Devel@gmail.com
-# Release : v1.0
+# Release : v1.1
 #
 # Version History
 ###############################################################################
@@ -19,16 +19,23 @@
 ###############################################################################
 #
 # v1.0       03-05-2014      Initial Release (For Ubuntu 14.04 Trusty Tahr)
+# v1.1       06-05-2014      Added shutdown when done and fixed a few issues
 #
 # Had nothing more fun to do in my village, after seeing around :)
 #
 ###############################################################################
 
-# Interactive mode (just in case)
-# INTERACTIVE=-y
+# Interactive mode (just in case, comment it)
+NON_INTERACTIVE="-y --force-yes"
 
 # Simulation mode to test this script
 # SIMULATION=-s
+
+# Shutdown when done
+SHUTDOWN=1
+
+# Shutdown delay
+SHUTDOWN_DELAY=2
 
 if [ "$SIMULATION" != "-s" ] ; then
     if [ `id -u` -ne 0 ] ; then
@@ -37,7 +44,7 @@ if [ "$SIMULATION" != "-s" ] ; then
     fi
 fi
 
-OPT_FLAGS="$INTERACTIVE $SIMULATION"
+OPT_FLAGS="$NON_INTERACTIVE $SIMULATION"
 
 # Customize what you need to install here in the list below
 # The ones already here are the ones I install by default
@@ -48,7 +55,7 @@ GREEN=$(tput setaf 2)
 BLUE=$(tput setaf 4)
 NORMAL=$(tput sgr0)
 
-apt-get update
+#apt-get update
 
 for PACKAGE in $PACKAGES; do
     echo
@@ -62,11 +69,17 @@ for PACKAGE in $PACKAGES; do
 done
 
 # Configuration specific to AOSP builds
-update-alternatives --config java
-update-alternatives --config javac
+update-alternatives --config java > /dev/null 2>&1
+update-alternatives --config javac > /dev/null 2>&1
 
-ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so
+ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so > /dev/null 2>&1
 
 echo
 echo Done!
 echo
+
+if [ $SHUTDOWN -eq 1 ] ; then
+    echo System will shutdown in $SHUTDOWN_DELAY minutes.
+    echo You may abort the it using the command 'shutdown -c'
+    shutdown -h +$SHUTDOWN_DELAY &
+fi

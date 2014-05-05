@@ -7,8 +7,14 @@ init_my_ubuntu - CHANGELOG
 ^ Enhancement
 * Bug Fix
 
-[v1.0] 01.05.2014
+[v1.0] 03.05.2014
 
 + Initial release
 + Basic installation of packages
 + Setup AOSP build deps
+
+[v1.1] 06.05.2014
+
++ Added shutdown when done
+* Fixed a few issues in script
+* Fixed CHANGELOG initial release date
