@@ -18,3 +18,10 @@ init_my_ubuntu - CHANGELOG
 + Added shutdown when done
 * Fixed a few issues in script
 * Fixed CHANGELOG initial release date
+
+[v1.2] 11.05.2014
+
++ Added download and install packages (DAP)
++ Added provition to add PPAs
+^ Segregated packages into catagories
+^ Enhanced script debuggability
