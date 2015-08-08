@@ -80,13 +80,14 @@ APT_OPT_FLAGS="$APT_OPT_INTERACTIVE $APT_OPT_SIMULATION"
 
 # Customize what you need to install here in the list below
 # The ones already here are the ones I install by default
-APT_PACKAGES="squid-deb-proxy squid-deb-proxy-client openssh-server vim mc gcc g++ ctags lynx expect ddd doxygen meld idle git gnupg androidsdk-ddms codeblocks eclipse-platform svn-workbench xbmc aptoncd arj autoconf automake apcupsd beep boinc-client bum cabextract ccache cccc cdecl chromium-browser colorgcc colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave grub-customizer socat apt-file gitk git-gui "
+APT_PACKAGES="squid-deb-proxy squid-deb-proxy-client openssh-server vim mc gcc g++ ctags lynx expect ddd doxygen meld idle git gnupg androidsdk-ddms codeblocks eclipse-platform svn-workbench xbmc aptoncd arj autoconf automake apcupsd beep boinc-client bum cabextract ccache cccc cdecl chromium-browser colorgcc colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime
+nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave grub-customizer socat apt-file gitk git-gui "
 
 # APC UPS dependency
 APT_PACKAGES=$APT_PACKAGES"libgd2-xpm-dev "
 
 # Android Build Enviornment dependencies
-APT_PACKAGES=$APT_PACKAGES"openjdk-7-jdk build-essential curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386 phablet-tools gperf "
+APT_PACKAGES=$APT_PACKAGES"openjdk-7-jdk build-essential curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386 phablet-tools gperf abootimg "
 
 # Webmin dependencies
 APT_PACKAGES=$APT_PACKAGES"apt-show-versions libauthen-pam-perl "
