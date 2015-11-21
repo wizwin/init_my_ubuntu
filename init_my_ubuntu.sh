@@ -81,7 +81,7 @@ APT_OPT_FLAGS="$APT_OPT_INTERACTIVE $APT_OPT_SIMULATION"
 # Customize what you need to install here in the list below
 # The ones already here are the ones I install by default
 APT_PACKAGES="squid-deb-proxy squid-deb-proxy-client openssh-server vim mc gcc g++ ctags lynx expect ddd doxygen meld idle git gnupg androidsdk-ddms codeblocks eclipse-platform svn-workbench xbmc aptoncd arj autoconf automake apcupsd beep boinc-client bum cabextract ccache cccc cdecl chromium-browser colorgcc colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime
-nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave grub-customizer socat apt-file gitk git-gui "
+nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave grub-customizer socat apt-file gitk git-gui sloccount cifs-utils "
 
 # APC UPS dependency
 APT_PACKAGES=$APT_PACKAGES"libgd2-xpm-dev "
@@ -96,7 +96,7 @@ APT_PACKAGES=$APT_PACKAGES"apt-show-versions libauthen-pam-perl "
 # APT_PACKAGES=$APT_PACKAGES:"lib32asound2 lib32z1 ia32-libs "
 
 # Packages to download and install (DAI)
-DAI_PACKAGES="http://prdownloads.sourceforge.net/webadmin/webmin_1.740_all.deb http://download.teamviewer.com/download/teamviewer_linux_x64.deb https://launchpad.net/ubuntu-tweak/0.8.x/0.8.7/+download/ubuntu-tweak_0.8.7-1~trusty2_all.deb "
+DAI_PACKAGES="http://prdownloads.sourceforge.net/webadmin/webmin_1.770_all.deb http://download.teamviewer.com/download/teamviewer_linux_x64.deb https://launchpad.net/ubuntu-tweak/0.8.x/0.8.7/+download/ubuntu-tweak_0.8.7-1~trusty2_all.deb "
 
 # Add all PPAs here
 #APT_PPAS="ppa:tualatrix/ppa "
