@@ -24,6 +24,7 @@
 #            09-05-2014      Added DAI packages
 #            10-05-2014      Added APT PPAs
 #            01-05-2015      Updated packages
+#            25-06-2016      Updated packages
 #
 # Had nothing more fun to do in my village, after seeing around :)
 #
@@ -58,7 +59,7 @@ LOG_FILE_PATH=./imu.log
 echo
 printf "${GREEN}IMU${NORMAL} (e-moo) - Init My Ubuntu"
 echo
-echo "Copyright (c) 2014-2015 Winny Mathew Kurian"
+echo "Copyright (c) 2014-2016 Winny Mathew Kurian"
 
 if [ $SIMULATION -eq 1 ] ; then
     # Simulation mode to test this script
@@ -81,12 +82,12 @@ APT_OPT_FLAGS="$APT_OPT_INTERACTIVE $APT_OPT_SIMULATION"
 # Customize what you need to install here in the list below
 # The ones already here are the ones I install by default
 APT_PACKAGES="squid-deb-proxy squid-deb-proxy-client openssh-server vim mc gcc g++ ctags lynx expect ddd doxygen meld idle git gnupg androidsdk-ddms codeblocks eclipse-platform svn-workbench xbmc aptoncd arj autoconf automake apcupsd beep boinc-client bum cabextract ccache cccc cdecl chromium-browser colorgcc colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime
-nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave grub-customizer socat apt-file gitk git-gui sloccount cifs-utils "
+nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave grub-customizer socat apt-file gitk git-gui sloccount cifs-utils minicom "
 
 # APC UPS dependency
 APT_PACKAGES=$APT_PACKAGES"libgd2-xpm-dev "
 
-# Android Build Enviornment dependencies
+# Android Build Environment dependencies
 APT_PACKAGES=$APT_PACKAGES"openjdk-7-jdk build-essential curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386 phablet-tools gperf abootimg "
 
 # Webmin dependencies
@@ -96,7 +97,7 @@ APT_PACKAGES=$APT_PACKAGES"apt-show-versions libauthen-pam-perl "
 # APT_PACKAGES=$APT_PACKAGES:"lib32asound2 lib32z1 ia32-libs "
 
 # Packages to download and install (DAI)
-DAI_PACKAGES="http://prdownloads.sourceforge.net/webadmin/webmin_1.770_all.deb http://download.teamviewer.com/download/teamviewer_linux_x64.deb https://launchpad.net/ubuntu-tweak/0.8.x/0.8.7/+download/ubuntu-tweak_0.8.7-1~trusty2_all.deb "
+DAI_PACKAGES="http://jaist.dl.sourceforge.net/project/webadmin/webmin/1.801/webmin_1.801_all.deb http://download.teamviewer.com/download/teamviewer_linux_x64.deb https://launchpad.net/ubuntu-tweak/0.8.x/0.8.7/+download/ubuntu-tweak_0.8.7-1~trusty2_all.deb "
 
 # Add all PPAs here
 #APT_PPAS="ppa:tualatrix/ppa "
