@@ -11,7 +11,7 @@
 # Author  : Winny Mathew Kurian (WiZarD)
 # Date    : 3rd May 2014
 # Contact : WiZarD.Devel@gmail.com
-# Release : v1.2
+# Release : v1.3
 #
 # Version History
 ###############################################################################
@@ -25,6 +25,9 @@
 #            10-05-2014      Added APT PPAs
 #            01-05-2015      Updated packages
 #            25-06-2016      Updated packages
+#            30-01-2017      Updated for Ubuntu Xenial Xerus
+#            09-12-2017      Updated packages
+# v1.3       29-05-2018      Updated packages
 #
 # Had nothing more fun to do in my village, after seeing around :)
 #
@@ -59,7 +62,7 @@ LOG_FILE_PATH=./imu.log
 echo
 printf "${GREEN}IMU${NORMAL} (e-moo) - Init My Ubuntu"
 echo
-echo "Copyright (c) 2014-2016 Winny Mathew Kurian"
+echo "Copyright (c) 2014-2018 Winny Mathew Kurian"
 
 if [ $SIMULATION -eq 1 ] ; then
     # Simulation mode to test this script
@@ -74,33 +77,52 @@ fi
 
 if [ $INTERACTIVE -eq 0 ] ; then
     # Non-interactive mode
-    APT_OPT_INTERACTIVE="-y --force-yes"
+    APT_OPT_INTERACTIVE="-y"
 fi
 
 APT_OPT_FLAGS="$APT_OPT_INTERACTIVE $APT_OPT_SIMULATION"
 
-# Customize what you need to install here in the list below
-# The ones already here are the ones I install by default
-APT_PACKAGES="squid-deb-proxy squid-deb-proxy-client openssh-server vim mc gcc g++ ctags lynx expect ddd doxygen meld idle git gnupg androidsdk-ddms codeblocks eclipse-platform svn-workbench xbmc aptoncd arj autoconf automake apcupsd beep boinc-client bum cabextract ccache cccc cdecl chromium-browser colorgcc colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime
-nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave grub-customizer socat apt-file gitk git-gui sloccount cifs-utils minicom "
+# Kodi dependency
+APT_PACKAGES=$APT_PACKAGES"software-properties-common "
 
 # APC UPS dependency
 APT_PACKAGES=$APT_PACKAGES"libgd2-xpm-dev "
-
-# Android Build Environment dependencies
-APT_PACKAGES=$APT_PACKAGES"openjdk-7-jdk build-essential curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386 phablet-tools gperf abootimg "
 
 # Webmin dependencies
 APT_PACKAGES=$APT_PACKAGES"apt-show-versions libauthen-pam-perl "
 
 # Teamviewer dependencies
-# APT_PACKAGES=$APT_PACKAGES:"lib32asound2 lib32z1 ia32-libs "
+APT_PACKAGES=$APT_PACKAGES:"lib32asound2 lib32z1 ia32-libs "
+
+# Tweak Ubuntu dedendencies
+APT_PACKAGES=$APT_PACKAGES:"python-xdg python-aptdaemon python-aptdaemon.gtk3widgets python-defer python-compizconfig gir1.2-gconf-2.0 gir1.2-webkit-3.0 "
+
+# Customize what you need to install here in the list below
+# The ones already here are the ones I install by default
+APT_PACKAGES="squid-deb-proxy squid-deb-proxy-client openssh-server vim mc gcc g++ ctags lynx expect ddd doxygen meld idle git gnupg codeblocks eclipse-platform svn-workbench kodi aptoncd arj autoconf automake apcupsd beep boinc-client bum cabextract cccc cdecl chromium-browser colorgcc colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime
+nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave grub-customizer socat apt-file gitk git-gui sloccount cifs-utils minicom iotop preload ksh apt-fast tlp tlp-rdw indicator-cpufreq "
+
+#
+#Android Development Packages (Common)
+APT_PACKAGES=$APT_PACKAGES"ccache gnupg flex bison gperf build-essential zip curl tofrodos phablet-tools abootimg androidsdk-ddms python-networkx "
+#
+# Android Build Environment dependencies
+#
+# Ubuntu 14.04, 16.04
+APT_PACKAGES=$APT_PACKAGES"openjdk-8-jdk gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev ccache libgl1-mesa-dev libxml2-utils xsltproc unzip libnss-sss:i386 "
+#
+# Ubuntu 12.04
+#APT_PACKAGES=$APT_PACKAGES"openjdk-7-jdk libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 python-markdown libxml2-utils xsltproc zlib1g-dev:i386 "
+#
 
 # Packages to download and install (DAI)
-DAI_PACKAGES="http://jaist.dl.sourceforge.net/project/webadmin/webmin/1.801/webmin_1.801_all.deb http://download.teamviewer.com/download/teamviewer_linux_x64.deb https://launchpad.net/ubuntu-tweak/0.8.x/0.8.7/+download/ubuntu-tweak_0.8.7-1~trusty2_all.deb "
+DAI_PACKAGES="http://prdownloads.sourceforge.net/webadmin/webmin_1.881_all.deb http://download.teamviewer.com/download/teamviewer_linux_x64.deb http://archive.getdeb.net/ubuntu/pool/apps/u/ubuntu-tweak/ubuntu-tweak_0.8.7-1~getdeb2~xenial_all.deb "
+
+# Packages to download only (DO)
+DO_PACKAGES="http://www-us.apache.org/dist/tomcat/tomcat-9/v9.0.8/bin/apache-tomcat-9.0.8.zip https://updates.jenkins-ci.org/download/war/2.125/jenkins.war "
 
 # Add all PPAs here
-#APT_PPAS="ppa:tualatrix/ppa "
+APT_PPAS="ppa:tualatrix/ppa ppa:team-xbmc/ppa ppa:apt-fast/stable ppa:linrunner/tlp "
 
 function runPostInstall {
     if [ "$1" == "squid-deb-proxy" ] ; then
@@ -110,7 +132,7 @@ function runPostInstall {
         if [ $? -ne 0 ] ; then
             echo
             echo Starting squid deb proxy for caching...
-            /etc/init.d/squid-deb-proxy start
+            #/etc/init.d/squid-deb-proxy start
         fi
     fi
 }
@@ -128,7 +150,7 @@ done
 
 echo
 echo "Updating software package list..."
-#$CMD_SIMULATION apt-get update > $LOGGER
+$CMD_SIMULATION apt-get update > $LOGGER
 
 for APT_PACKAGE in $APT_PACKAGES; do
     echo
@@ -145,6 +167,20 @@ done
 # Make a download directory
 mkdir -p $DOWNLOAD_PATH
 
+# Process DO packages
+for DO_PACKAGE in $DO_PACKAGES; do
+    PACKAGE_NAME=`basename $DO_PACKAGE`
+    if [ -e $DOWNLOAD_PATH/$PACKAGE_NAME ] ; then
+        echo
+        printf "Package already downloaded: $PACKAGE_NAME..."
+    else
+        echo
+        printf "%-40s" "Download $PACKAGE_NAME... "
+        $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE > $LOGGER
+    fi
+done
+
+# Process DAI packages
 for DAI_PACKAGE in $DAI_PACKAGES; do
     PACKAGE_NAME=`basename $DAI_PACKAGE`
     if [ -e $DOWNLOAD_PATH/$PACKAGE_NAME ] ; then
@@ -171,16 +207,19 @@ for DAI_PACKAGE in $DAI_PACKAGES; do
     fi
 done
 
+#
 # Configuration specific to AOSP builds
 $CMD_SIMULATION update-alternatives --config java > $LOGGER
 $CMD_SIMULATION update-alternatives --config javac > $LOGGER
-
-$CMD_SIMULATION ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so > $LOGGER
+#
+# Ununtu 10.10, 12.04
+#$CMD_SIMULATION ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so > $LOGGER
+#
 
 # Get repo itself
 echo
 echo Installing repo...
-$CMD_SIMULATION mkdir ~/bin
+$CMD_SIMULATION mkdir -p ~/bin
 $CMD_SIMULATION curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
 $CMD_SIMULATION chmod a+x ~/bin/repo
 
