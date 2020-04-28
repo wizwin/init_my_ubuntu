@@ -25,3 +25,12 @@ init_my_ubuntu - CHANGELOG
 + Added provition to add PPAs
 ^ Segregated packages into catagories
 ^ Enhanced script debuggability
+
+[v1.3] 29.05.2018
+
++ Added Download Only (DO) support
+
+[v1.4] 28.04.2020
+
+^ Added functions for post install
+^ Support for Ubuntu 20.04 LTS
