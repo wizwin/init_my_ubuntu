@@ -247,7 +247,7 @@ for DAI_PACKAGE in $DAI_PACKAGES; do
 done
 
 # Run all post install operations
-$CMD_SIMULATION runPerPostInstall
+$CMD_SIMULATION runPostInstall
 
 echo
 echo Done... See you after next install!
