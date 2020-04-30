@@ -41,3 +41,5 @@ init_my_ubuntu - CHANGELOG
 ^ Enabled logging to file
 ^ Fix borken installations before starting
 * Fix logging
+^ Organized all stages as functions
+^ Handle EULA for MS TTF installation

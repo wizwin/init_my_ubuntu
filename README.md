@@ -7,10 +7,10 @@ after a fresh Ubuntu installation.
 
 IMU goes through the following steps:
 1. Fix broken installations
-2. Update PPAs (Required for a few packages)
-3. Install packages (Using packages list)
-4. DO packages (Download Only, Download packages for manual installation)
-5. DAI package (Download And Install, These are deb packages)
+2. DAI package (Download And Install, These are deb packages)
+3. Update PPAs (Required for a few packages)
+4. Install packages (Using packages list)
+5. DO packages (Download Only, Download packages for manual installation)
 6. Post install custom scripts (These are used to configure specific needs)
 7. Auto shutdown if enabled
 

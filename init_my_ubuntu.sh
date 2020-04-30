@@ -162,6 +162,8 @@ function runPerPostInstall {
             echo Starting squid deb proxy for caching...
             #/etc/init.d/squid-deb-proxy start
         fi
+    elif [ "$1" == "vim" ] ; then
+        echo "No post install steps..."
     fi
 }
 
@@ -183,13 +185,14 @@ function runPostInstall {
     # Get repo itself
     echo
     echo Installing repo...
-    $CMD_SIMULATION mkdir ~/bin
-    $CMD_SIMULATION curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+    # TODO: /root/bin need not be created
+    $CMD_SIMULATION mkdir ~/bin >> $LOGGER 2>&1
+    $CMD_SIMULATION curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo >> $LOGGER 2>&1
     $CMD_SIMULATION chmod a+x ~/bin/repo
 
     # Enable Firewall
     echo
-    echo Enable filewall...
+    echo Enable Firewall...
     $CMD_SIMULATION ufw enable
 
     #
@@ -210,18 +213,88 @@ function runPostInstall {
     # Set workgroup in /etc/samba/smb.conf
 }
 
-echo
-echo "Updating PPAs..."
-for APT_PPA in $APT_PPAS; do
+function processDAIPackages {
     echo
-    printf "%-40s" "Adding PPA: $APT_PPA... "
-    $CMD_SIMULATION add-apt-repository -y $APT_PPA >> $LOGGER 2>&1
-    if [ $? -eq 0 ] ; then
-        printf "${GREEN}Done\n${NORMAL}"
-    else
-        printf "${RED}Failed!\n${NORMAL}"
-    fi
-done
+    echo "Process DAI packages..."
+    # Process DAI packages
+    for DAI_PACKAGE in $DAI_PACKAGES; do
+        PACKAGE_NAME=`basename $DAI_PACKAGE`
+        if [ -e $DOWNLOAD_PATH/$PACKAGE_NAME ] ; then
+            echo
+            printf "Using existing package $PACKAGE_NAME... "
+        else
+            echo
+            printf "%-40s" "Download $PACKAGE_NAME... "
+            $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE >> $LOGGER 2>&1
+        fi
+
+        if [ $? -eq 0 ] ; then
+            printf "${GREEN}Done\n${NORMAL}"
+            echo
+            printf "%-40s" "Install $DAI_PACKAGE... "
+            $CMD_SIMULATION dpkg -i $DOWNLOAD_PATH/$PACKAGE_NAME >> $LOGGER 2>&1
+            if [ $? -eq 0 ] ; then
+                printf "${GREEN}Done\n${NORMAL}"
+            else
+                printf "${RED}Failed!\n${NORMAL}"
+            fi
+        else
+            printf "${RED}Failed!\n${NORMAL}"
+        fi
+    done
+}
+
+function processDOPackages {
+    echo
+    echo "Process DO packages..."
+    # Process DO packages
+    for DO_PACKAGE in $DO_PACKAGES; do
+        PACKAGE_NAME=`basename $DO_PACKAGE`
+        if [ -e $DOWNLOAD_PATH/$PACKAGE_NAME ] ; then
+            echo
+            printf "Package already downloaded: $PACKAGE_NAME..."
+        else
+            echo
+            printf "%-40s" "Download $PACKAGE_NAME... "
+            $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE >> $LOGGER 2>&1
+        fi
+    done
+}
+
+function updatePPAs {
+    echo
+    echo "Updating PPAs..."
+    for APT_PPA in $APT_PPAS; do
+        echo
+        printf "%-40s" "Adding PPA: $APT_PPA... "
+        $CMD_SIMULATION add-apt-repository -y $APT_PPA >> $LOGGER 2>&1
+        if [ $? -eq 0 ] ; then
+            printf "${GREEN}Done\n${NORMAL}"
+        else
+            printf "${RED}Failed!\n${NORMAL}"
+        fi
+    done
+}
+
+function installPackages {
+    echo
+    echo "Installing software packages..."
+    for APT_PACKAGE in $APT_PACKAGES; do
+        echo
+        printf "%-40s" "Install $APT_PACKAGE... "
+        apt-get $APT_OPT_FLAGS install $APT_PACKAGE >> $LOGGER 2>&1
+        if [ $? -eq 0 ] ; then
+            printf "${GREEN}Done\n${NORMAL}"
+            $CMD_SIMULATION runPerPostInstall $APT_PACKAGE
+        else
+            printf "${RED}Failed!\n${NORMAL}"
+        fi
+    done
+}
+
+####
+#### Main
+####
 
 echo
 echo "Updating software package list..."
@@ -230,68 +303,30 @@ $CMD_SIMULATION apt-get update >> $LOGGER 2>&1
 # Before we start let's fix any broken installations
 echo
 echo "Fix broken installations (if any)..."
+#
+# Handle MS TTF installer EULA
+#
+$CMD_SIMULATION echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | $CMD_SIMULATION sudo debconf-set-selections >> $LOGGER 2>&1
+$CMD_SIMULATION dpkg --configure -a --force-configure-any >> $LOGGER 2>&1
 $CMD_SIMULATION apt-get --fix-broken -y install >> $LOGGER 2>&1
 
-echo
-echo "Installing software packages..."
-for APT_PACKAGE in $APT_PACKAGES; do
-    echo
-    printf "%-40s" "Install $APT_PACKAGE... "
-    apt-get $APT_OPT_FLAGS install $APT_PACKAGE >> $LOGGER 2>&1
-    if [ $? -eq 0 ] ; then
-        printf "${GREEN}Done\n${NORMAL}"
-        $CMD_SIMULATION runPerPostInstall $APT_PACKAGE
-    else
-        printf "${RED}Failed!\n${NORMAL}"
-    fi
-done
-
 # Make a download directory
-mkdir -p $DOWNLOAD_PATH
+$CMD_SIMULATION mkdir -p $DOWNLOAD_PATH
 
-echo
-echo "Process DO packages..."
-# Process DO packages
-for DO_PACKAGE in $DO_PACKAGES; do
-    PACKAGE_NAME=`basename $DO_PACKAGE`
-    if [ -e $DOWNLOAD_PATH/$PACKAGE_NAME ] ; then
-        echo
-        printf "Package already downloaded: $PACKAGE_NAME..."
-    else
-        echo
-        printf "%-40s" "Download $PACKAGE_NAME... "
-        $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE >> $LOGGER 2>&1
-    fi
-done
+# Download And Install (DAI)
+#
+# This needs to be here so that any previous aborted installation will not
+# cause all installPackages from failing
+processDAIPackages
 
-echo
-echo "Process DAI packages..."
-# Process DAI packages
-for DAI_PACKAGE in $DAI_PACKAGES; do
-    PACKAGE_NAME=`basename $DAI_PACKAGE`
-    if [ -e $DOWNLOAD_PATH/$PACKAGE_NAME ] ; then
-        echo
-        printf "Using existing package $PACKAGE_NAME..."
-    else
-        echo
-        printf "%-40s" "Download $PACKAGE_NAME... "
-        $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE >> $LOGGER 2>&1
-    fi
+# Update PPAs
+updatePPAs
 
-    if [ $? -eq 0 ] ; then
-        printf "${GREEN}Done\n${NORMAL}"
-        echo
-        printf "%-40s" "Install $DAI_PACKAGE... "
-        $CMD_SIMULATION dpkg -i $DOWNLOAD_PATH/$PACKAGE_NAME >> $LOGGER 2>&1
-        if [ $? -eq 0 ] ; then
-            printf "${GREEN}Done\n${NORMAL}"
-        else
-            printf "${RED}Failed!\n${NORMAL}"
-        fi
-    else
-        printf "${RED}Failed!\n${NORMAL}"
-    fi
-done
+# Install packages
+installPackages
+
+# Download Only (DO)
+processDOPackages
 
 # Run all post install operations
 $CMD_SIMULATION runPostInstall
