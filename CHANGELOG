@@ -34,3 +34,10 @@ init_my_ubuntu - CHANGELOG
 
 ^ Added functions for post install
 ^ Support for Ubuntu 20.04 LTS
+
+[v1.5] 30.04.2020
+
+^ Added more prints to make script verbose
+^ Enabled logging to file
+^ Fix borken installations before starting
+* Fix logging

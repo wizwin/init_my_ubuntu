@@ -11,7 +11,7 @@
 # Author  : Winny Mathew Kurian (WiZarD)
 # Date    : 3rd May 2014
 # Contact : WiZarD.Devel@gmail.com
-# Release : v1.4
+# Release : v1.5
 #
 # Version History
 ###############################################################################
@@ -30,6 +30,9 @@
 # v1.3       29-05-2018      Updated packages
 # v1.4       28-04-2020      Covid-19 Lockdown updates for
 #                            Ubuntu 20.04 Focal Fossa
+# v1.5       30-04-2020      Made the script verbose
+#                            Enabled logger
+#                            Fix broken installations
 #
 # Had nothing more fun to do in my village, after seeing around :)
 #
@@ -50,29 +53,45 @@ INTERACTIVE=0
 # Shutdown when done
 SHUTDOWN=0
 
-# Shutdown delay
+# Shutdown delay (in minutes)
 SHUTDOWN_DELAY=2
+
+# Enable logging
+LOGGING=0
 
 # Download directory path
 DOWNLOAD_PATH=./Downloads
 
-# Log file
+# Log file path
 LOG_FILE_PATH=./imu.log
-
-LOGGER=/dev/null 2>&1
 
 echo
 printf "${GREEN}IMU${NORMAL} (e-moo) - Init My Ubuntu"
 echo
 echo "Copyright (c) 2014-2020 Winny Mathew Kurian (WiZarD)"
 
+#
+# Initialize script
+#
+if [ $LOGGING -eq 1 ] ; then
+    # Log all operation to log file
+    LOGGER=$LOG_FILE_PATH
+else 
+    LOGGER=/dev/null
+fi
+
+START_TIME=`date` >> $LOGGER
+echo "IMU started at: $START_TIME" >> $LOGGER 2>&1
+
 if [ $SIMULATION -eq 1 ] ; then
     # Simulation mode to test this script
     APT_OPT_SIMULATION="-s"
     CMD_SIMULATION=echo
+    echo
+    echo "Running in simulation mode..."
 elif [[ $EUID -ne 0 ]]; then
     echo
-    echo "This script must be run as root!" 1>&2
+    echo "This script must be run as root!"
     echo
     exit 1
 fi
@@ -131,6 +150,7 @@ DO_PACKAGES="http://www-us.apache.org/dist/tomcat/tomcat-9/v9.0.34/bin/apache-to
 
 # Add all PPAs here
 APT_PPAS="ppa:tualatrix/ppa ppa:team-xbmc/ppa ppa:apt-fast/stable ppa:linrunner/tlp ppa:teejee2008/ppa "
+#APT_PPAS=" "
 
 function runPerPostInstall {
     if [ "$1" == "squid-deb-proxy" ] ; then
@@ -146,12 +166,18 @@ function runPerPostInstall {
 }
 
 function runPostInstall {
+    echo
+    echo Running post install steps...
+
     # Configuration specific to AOSP builds
-    $CMD_SIMULATION update-alternatives --config java > $LOGGER
-    $CMD_SIMULATION update-alternatives --config javac > $LOGGER
+    echo
+    echo Update java links...
+    $CMD_SIMULATION update-alternatives --config java >> $LOGGER 2>&1
+    $CMD_SIMULATION update-alternatives --config javac >> $LOGGER 2>&1
+
     #
     # Ununtu 10.10, 12.04
-    #$CMD_SIMULATION ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so > $LOGGER
+    #$CMD_SIMULATION ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so >> $LOGGER 2>&1
     #
 
     # Get repo itself
@@ -162,9 +188,17 @@ function runPostInstall {
     $CMD_SIMULATION chmod a+x ~/bin/repo
 
     # Enable Firewall
+    echo
+    echo Enable filewall...
     $CMD_SIMULATION ufw enable
 
+    #
     # Run custom scripts
+    #
+    # Setup your custom scripts here
+    # 
+    echo
+    echo Running custom scripts...
     # Wi-Fi does not connect after suspend
     #echo "SUSPEND_MODULES=r8712u" > /etc/pm/config.d/config
 
@@ -176,10 +210,12 @@ function runPostInstall {
     # Set workgroup in /etc/samba/smb.conf
 }
 
+echo
+echo "Updating PPAs..."
 for APT_PPA in $APT_PPAS; do
     echo
     printf "%-40s" "Adding PPA: $APT_PPA... "
-    $CMD_SIMULATION add-apt-repository -y $APT_PPA > $LOGGER
+    $CMD_SIMULATION add-apt-repository -y $APT_PPA >> $LOGGER 2>&1
     if [ $? -eq 0 ] ; then
         printf "${GREEN}Done\n${NORMAL}"
     else
@@ -189,12 +225,19 @@ done
 
 echo
 echo "Updating software package list..."
-$CMD_SIMULATION apt-get update > $LOGGER
+$CMD_SIMULATION apt-get update >> $LOGGER 2>&1
 
+# Before we start let's fix any broken installations
+echo
+echo "Fix broken installations (if any)..."
+$CMD_SIMULATION apt-get --fix-broken -y install >> $LOGGER 2>&1
+
+echo
+echo "Installing software packages..."
 for APT_PACKAGE in $APT_PACKAGES; do
     echo
     printf "%-40s" "Install $APT_PACKAGE... "
-    apt-get $APT_OPT_FLAGS install $APT_PACKAGE > $LOGGER
+    apt-get $APT_OPT_FLAGS install $APT_PACKAGE >> $LOGGER 2>&1
     if [ $? -eq 0 ] ; then
         printf "${GREEN}Done\n${NORMAL}"
         $CMD_SIMULATION runPerPostInstall $APT_PACKAGE
@@ -206,6 +249,8 @@ done
 # Make a download directory
 mkdir -p $DOWNLOAD_PATH
 
+echo
+echo "Process DO packages..."
 # Process DO packages
 for DO_PACKAGE in $DO_PACKAGES; do
     PACKAGE_NAME=`basename $DO_PACKAGE`
@@ -215,10 +260,12 @@ for DO_PACKAGE in $DO_PACKAGES; do
     else
         echo
         printf "%-40s" "Download $PACKAGE_NAME... "
-        $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE > $LOGGER
+        $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE >> $LOGGER 2>&1
     fi
 done
 
+echo
+echo "Process DAI packages..."
 # Process DAI packages
 for DAI_PACKAGE in $DAI_PACKAGES; do
     PACKAGE_NAME=`basename $DAI_PACKAGE`
@@ -228,14 +275,14 @@ for DAI_PACKAGE in $DAI_PACKAGES; do
     else
         echo
         printf "%-40s" "Download $PACKAGE_NAME... "
-        $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE > $LOGGER
+        $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE >> $LOGGER 2>&1
     fi
 
     if [ $? -eq 0 ] ; then
         printf "${GREEN}Done\n${NORMAL}"
         echo
         printf "%-40s" "Install $DAI_PACKAGE... "
-        $CMD_SIMULATION dpkg -i $DOWNLOAD_PATH/$PACKAGE_NAME > $LOGGER
+        $CMD_SIMULATION dpkg -i $DOWNLOAD_PATH/$PACKAGE_NAME >> $LOGGER 2>&1
         if [ $? -eq 0 ] ; then
             printf "${GREEN}Done\n${NORMAL}"
         else
@@ -252,6 +299,9 @@ $CMD_SIMULATION runPostInstall
 echo
 echo Done... See you after next install!
 echo
+
+END_TIME=`date` >> $LOGGER
+echo "IMU completed at: $START_TIME" >> $LOGGER 2>&1
 
 if [ $SHUTDOWN -eq 1 ] ; then
     echo System will shutdown in $SHUTDOWN_DELAY minutes.
