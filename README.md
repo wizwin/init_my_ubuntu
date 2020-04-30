@@ -1,4 +1,4 @@
-====================
+
 init_my_ubuntu (IMU)
 ====================
 
@@ -14,7 +14,6 @@ IMU goes through the following steps:
 6. Post install custom scripts (These are used to configure specific needs)
 7. Auto shutdown if enabled
 
-============
 Steps to run:
 =============
 1. Go root
@@ -24,7 +23,6 @@ OR
 
 Add it to your install post-build (never tested)
 
-===============
 Simulation Mode
 ===============
 
