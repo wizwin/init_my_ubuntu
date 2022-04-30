@@ -46,7 +46,7 @@ BLUE=$(tput setaf 4)
 NORMAL=$(tput sgr0)
 
 # Enable/Disable Simulation
-SIMULATION=1
+SIMULATION=0
 
 # Enable/Disable Interactive mode
 INTERACTIVE=0
