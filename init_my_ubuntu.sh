@@ -11,7 +11,7 @@
 # Author  : Winny Mathew Kurian (WiZarD)
 # Date    : 3rd May 2014
 # Contact : WiZarD.Devel@gmail.com
-# Release : v1.5
+# Release : v1.6
 #
 # Version History
 ###############################################################################
@@ -33,6 +33,7 @@
 # v1.5       30-04-2020      Made the script verbose
 #                            Enabled logger
 #                            Fix broken installations
+# v1.6       30-04-2022      Updated for Ubuntu 22.04 Jammy
 #
 # Had nothing more fun to do in my village, after seeing around :)
 #
@@ -45,7 +46,7 @@ BLUE=$(tput setaf 4)
 NORMAL=$(tput sgr0)
 
 # Enable/Disable Simulation
-SIMULATION=0
+SIMULATION=1
 
 # Enable/Disable Interactive mode
 INTERACTIVE=0
@@ -68,7 +69,7 @@ LOG_FILE_PATH=./imu.log
 echo
 printf "${GREEN}IMU${NORMAL} (e-moo) - Init My Ubuntu"
 echo
-echo "Copyright (c) 2014-2020 Winny Mathew Kurian (WiZarD)"
+echo "Copyright (c) 2014-2022 Winny Mathew Kurian (WiZarD)"
 
 #
 # Initialize script
@@ -104,21 +105,35 @@ fi
 
 APT_OPT_FLAGS="$APT_OPT_INTERACTIVE $APT_OPT_SIMULATION"
 
+# Obselete pacakges
+APT_OBSELETE_PACKAGES="ctags eclipse-platform svn-workbench bum aptoncd colorgcc valkyrie grub-customizer apt-fast "
+APT_OBSELETE_PACKAGES=$APT_OBSELETE_PACKAGES"phablet-tools androidsdk-ddms python-networkx gnome-tweak-tool "
+
 # Customize what you need to install here in the list below
 # The ones already here are the ones I install by default
-APT_PACKAGES="squid-deb-proxy squid-deb-proxy-client openssh-server vim mc gcc g++ ctags lynx expect ddd doxygen meld idle git gnupg codeblocks eclipse-platform svn-workbench kodi aptoncd arj autoconf automake apcupsd beep boinc-client bum cabextract cccc cdecl chromium-browser colorgcc colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind valkyrie virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave grub-customizer socat apt-file gitk git-gui sloccount cifs-utils minicom iotop preload ksh apt-fast tlp tlp-rdw indicator-cpufreq "
+#
+# Basic Packages
+#
+APT_PACKAGES="openssh-server vim mc gcc g++ universal-ctags lynx expect ddd doxygen meld idle git gnupg codeblocks kodi arj autoconf automake apcupsd beep boinc-client cabextract cccc cdecl chromium-browser colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip
+pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave socat apt-file gitk git-gui sloccount cifs-utils minicom iotop preload ksh tlp tlp-rdw indicator-cpufreq selinux-utils sqlite3 moreutils "
+
+# Squid Packages
+APT_PACKAGES=$APT_PACKAGES"squid-deb-proxy squid-deb-proxy-client "
 
 # APC UPS dependency
 APT_PACKAGES=$APT_PACKAGES"libgd2-xpm-dev "
 
 #
 #Android Development Packages (Common)
-APT_PACKAGES=$APT_PACKAGES"ccache gnupg flex bison gperf build-essential zip curl tofrodos phablet-tools abootimg androidsdk-ddms python-networkx "
+APT_PACKAGES=$APT_PACKAGES"ccache gnupg flex bison gperf build-essential zip curl tofrodos abootimg "
 #
 # Android Build Environment dependencies
 #
+# Ubuntu 18.04, 22.04
+APT_PACKAGES=$APT_PACKAGES"install git-core zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 libncurses5 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig "
+
 # Ubuntu 14.04, 16.04
-APT_PACKAGES=$APT_PACKAGES"openjdk-8-jdk gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev ccache libgl1-mesa-dev libxml2-utils xsltproc unzip libnss-sss:i386 "
+#APT_PACKAGES=$APT_PACKAGES"openjdk-8-jdk gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev ccache libgl1-mesa-dev libxml2-utils xsltproc unzip libnss-sss:i386 "
 #
 # Ubuntu 12.04
 #APT_PACKAGES=$APT_PACKAGES"openjdk-7-jdk libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 python-markdown libxml2-utils xsltproc zlib1g-dev:i386 "
@@ -128,25 +143,25 @@ APT_PACKAGES=$APT_PACKAGES"openjdk-8-jdk gcc-multilib g++-multilib libc6-dev-i38
 APT_PACKAGES=$APT_PACKAGES"apt-show-versions libauthen-pam-perl "
 
 # Teamviewer dependencies
-APT_PACKAGES=$APT_PACKAGES:"lib32asound2 lib32z1 ia32-libs "
+APT_PACKAGES=$APT_PACKAGES"lib32asound2 lib32z1 ia32-libs "
 
 # Tweak Ubuntu dedendencies
-APT_PACKAGES=$APT_PACKAGES:"python-xdg python-aptdaemon python-aptdaemon.gtk3widgets python-defer python-compizconfig gir1.2-gconf-2.0 gir1.2-webkit-3.0 "
+APT_PACKAGES=$APT_PACKAGES"python-xdg python-aptdaemon python-aptdaemon.gtk3widgets python-defer python-compizconfig gir1.2-gconf-2.0 gir1.2-webkit-3.0 "
 
 # Kodi dependency
 APT_PACKAGES=$APT_PACKAGES"software-properties-common "
 
 # GNOME and extra tools
-APT_PACKAGES=$APT_PACKAGES"gnome-tweak-tool ubuntu-restricted-extras "
+APT_PACKAGES=$APT_PACKAGES"ubuntu-restricted-extras "
 
 # Third party PPA
 APT_PACKAGES=$APT_PACKAGES"timeshift "
 
 # Packages to download and install (DAI)
-DAI_PACKAGES="http://prdownloads.sourceforge.net/webadmin/webmin_1.941_all.deb http://download.teamviewer.com/download/teamviewer_linux_x64.deb http://archive.getdeb.net/ubuntu/pool/apps/u/ubuntu-tweak/ubuntu-tweak_0.8.7-1~getdeb2~xenial_all.deb "
+DAI_PACKAGES="http://prdownloads.sourceforge.net/webadmin/webmin_1.991_all.deb http://download.teamviewer.com/download/teamviewer_linux_x64.deb http://archive.getdeb.net/ubuntu/pool/apps/u/ubuntu-tweak/ubuntu-tweak_0.8.7-1~getdeb2~xenial_all.deb "
 
 # Packages to download only (DO)
-DO_PACKAGES="http://www-us.apache.org/dist/tomcat/tomcat-9/v9.0.34/bin/apache-tomcat-9.0.34.zip https://updates.jenkins-ci.org/download/war/2.234/jenkins.war "
+DO_PACKAGES="https://dlcdn.apache.org/tomcat/tomcat-10/v10.0.20/bin/apache-tomcat-10.0.20.tar.gz https://updates.jenkins-ci.org/download/war/2.345/jenkins.war "
 
 # Add all PPAs here
 APT_PPAS="ppa:tualatrix/ppa ppa:team-xbmc/ppa ppa:apt-fast/stable ppa:linrunner/tlp ppa:teejee2008/ppa "
@@ -211,6 +226,9 @@ function runPostInstall {
     #echo "echo 1000 > /sys/class/backlight/intel_backlight/brightness" >> /etc/init.d/rc.local
 
     # Set workgroup in /etc/samba/smb.conf
+
+    # Jenkins add key - preInstall
+    # wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
 }
 
 function processDAIPackages {

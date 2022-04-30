@@ -39,7 +39,12 @@ init_my_ubuntu - CHANGELOG
 
 ^ Added more prints to make script verbose
 ^ Enabled logging to file
-^ Fix borken installations before starting
+^ Fix broken installations before starting
 * Fix logging
 ^ Organized all stages as functions
 ^ Handle EULA for MS TTF installation
+
+[v1.6] 30.04.2022
+
+^ Updated for Ubuntu 22.04 LTS
+^ Updated pacakges
