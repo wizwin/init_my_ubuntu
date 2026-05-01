@@ -49,10 +49,14 @@ init_my_ubuntu - CHANGELOG
 ^ Updated for Ubuntu 22.04 LTS
 ^ Updated pacakges
 
-[v1.2] 07.05.2022
+[v1.7] 07.05.2022
 
 ^ Updated packages and DAI paths
 ^ Organized variables
 + Added Ubuntu version checks
 + Added config control for custom section
 + Added steps of packages getting added
+
+[v1.8] XX.XX.2024
+
+^ Organized packages and folders 

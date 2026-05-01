@@ -9,7 +9,7 @@
 # Mostly for development systems.
 #
 # Author  : Winny Mathew Kurian (WiZarD)
-# Date    : 3rd May 2014
+# Date    : 7th May 2022
 # Contact : WiZarD.Devel@gmail.com
 # Release : v1.7
 #
@@ -36,6 +36,7 @@
 # v1.6       30-04-2022      Updated for Ubuntu 22.04 Jammy
 # v1.7       07-05-2022      Updated and organized packages
 #                            Added Ubuntu version checks and custom script
+# v1.8       XX-XX-2024      Updated and organized packages
 #
 # Had nothing more fun to do in my village, after seeing around :)
 #
@@ -81,7 +82,7 @@ UBUNTU_REL_VER=`lsb_release -r | cut -d ':' -f 2 | xargs`
 echo
 printf "${GREEN}IMU${NORMAL} (e-moo) - Init My Ubuntu"
 echo
-echo "Copyright (c) 2014-2022 Winny Mathew Kurian (WiZarD)"
+echo "Copyright (c) 2014-2024 Winny Mathew Kurian (WiZarD)"
 echo
 
 #
@@ -161,7 +162,7 @@ APT_PACKAGES=$APT_PACKAGES"ccache gnupg flex bison gperf build-essential zip cur
 #
 echo + Ubuntu $UBUNTU_REL_VER specific
 
-dpkg --compare-versions "$UBUNTU_REL_VER" "eq" "22.04"
+dpkg --compare-versions "$UBUNTU_REL_VER" "eq" "24.04"
 if [ $? -eq 0 ] ; then
     # Ubuntu 18.04, 22.04
     APT_PACKAGES=$APT_PACKAGES"install git-core zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 libncurses5 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig "
@@ -206,15 +207,15 @@ APT_PACKAGES=$APT_PACKAGES"timeshift "
 echo
 echo Making DAI list...
 # Packages to download and install (DAI)
-DAI_PACKAGES="http://prdownloads.sourceforge.net/webadmin/webmin_1.991_all.deb "
-DAI_PACKAGES=$DAI_PACKAGES"https://download.teamviewer.com/download/linux/teamviewer-host_amd64.deb "
-DAI_PACKAGES=$DAI_PACKAGES"http://archive.getdeb.net/ubuntu/pool/apps/u/ubuntu-tweak/ubuntu-tweak_0.8.7-1~getdeb2~xenial_all.deb "
+DAI_PACKAGES="https://www.webmin.com/download/deb/webmin-current.deb "
+DAI_PACKAGES=$DAI_PACKAGES"https://download.teamviewer.com/download/linux/teamviewer_amd64.deb "
+# DAI_PACKAGES=$DAI_PACKAGES"http://archive.getdeb.net/ubuntu/pool/apps/u/ubuntu-tweak/ubuntu-tweak_0.8.7-1~getdeb2~xenial_all.deb "
 
 echo
 echo Making DO list...
 # Packages to download only (DO)
-DO_PACKAGES="https://dlcdn.apache.org/tomcat/tomcat-10/v10.0.20/bin/apache-tomcat-10.0.20.tar.gz "
-DO_PACKAGES=$DO_PACKAGES"https://updates.jenkins-ci.org/download/war/2.345/jenkins.war "
+DO_PACKAGES="https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.34/bin/apache-tomcat-10.1.34.tar.gz "
+DO_PACKAGES=$DO_PACKAGES"https://updates.jenkins-ci.org/download/war/2.489/jenkins.war "
 
 echo
 echo Making PPA list...
