@@ -9,9 +9,9 @@
 # Mostly for development systems.
 #
 # Author  : Winny Mathew Kurian (WiZarD)
-# Date    : 7th May 2022
+# Date    : 29th April 2026
 # Contact : WiZarD.Devel@gmail.com
-# Release : v1.7
+# Release : v1.9
 #
 # Version History
 ###############################################################################
@@ -37,6 +37,8 @@
 # v1.7       07-05-2022      Updated and organized packages
 #                            Added Ubuntu version checks and custom script
 # v1.8       XX-XX-2024      Updated and organized packages
+# v1.9       29-04-2026      Updated for Ubuntu 26.04 Resolute Raccoon
+#                            Added more dev packages on new setup
 #
 # Had nothing more fun to do in my village, after seeing around :)
 #
@@ -82,7 +84,7 @@ UBUNTU_REL_VER=`lsb_release -r | cut -d ':' -f 2 | xargs`
 echo
 printf "${GREEN}IMU${NORMAL} (e-moo) - Init My Ubuntu"
 echo
-echo "Copyright (c) 2014-2024 Winny Mathew Kurian (WiZarD)"
+echo "Copyright (c) 2014-2026 Winny Mathew Kurian (WiZarD)"
 echo
 
 #
@@ -123,7 +125,7 @@ APT_OPT_FLAGS="$APT_OPT_INTERACTIVE $APT_OPT_SIMULATION"
 $CMD_SIMULATION lsb_release -a >> $LOGGER 2>&1
 
 # Obselete pacakges
-APT_OBSELETE_PACKAGES="ctags eclipse-platform svn-workbench bum aptoncd colorgcc valkyrie grub-customizer "
+APT_OBSELETE_PACKAGES="ctags eclipse-platform svn-workbench bum aptoncd colorgcc valkyrie grub-customizer apt-fast "
 APT_OBSELETE_PACKAGES=$APT_OBSELETE_PACKAGES"phablet-tools androidsdk-ddms python-networkx gnome-tweak-tool "
 
 echo
@@ -134,8 +136,15 @@ echo Making packages list...
 # Basic Packages
 #
 echo + Basic packages
-APT_PACKAGES="openssh-server vim mc gcc g++ universal-ctags lynx expect ddd doxygen meld idle git gnupg codeblocks kodi arj autoconf automake apcupsd beep boinc-client cabextract cccc cdecl chromium-browser colormake crash cscope cowsay dkms dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip
-pcb-gtk pidgin pterm putty rar samba screen smartmontools subversion synaptic tree tightvncserver unrar valgrind virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave socat apt-file gitk git-gui sloccount cifs-utils minicom iotop preload ksh tlp tlp-rdw indicator-cpufreq selinux-utils sqlite3 moreutils htop "
+APT_PACKAGES="openssh-server vim mc gcc g++ universal-ctags lynx expect ddd doxygen meld idle git gnupg codeblocks kodi arj
+ autoconf automake apcupsd beep boinc-client cabextract cccc cdecl chromium-browser colormake crash cscope cowsay dkms
+ dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad
+ texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools
+ subversion synaptic tree tightvncserver unrar valgrind virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool
+ gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave socat apt-file gitk git-gui sloccount cifs-utils
+ minicom iotop preload ksh tlp tlp-rdw indicator-cpufreq selinux-utils sqlite3 moreutils testdisk python3-sphinx graphviz
+ graphviz texlive-xetex repo bazel-bootstrap rustc cargo systune btop powertop ncdu tmux zoxide tldr tlp tlp-rdw neofetch
+ "
 
 #
 # APT Packages with PPA dependencies
@@ -207,15 +216,15 @@ APT_PACKAGES=$APT_PACKAGES"timeshift "
 echo
 echo Making DAI list...
 # Packages to download and install (DAI)
-DAI_PACKAGES="https://www.webmin.com/download/deb/webmin-current.deb "
+DAI_PACKAGES="https://excellmedia.dl.sourceforge.net/project/webadmin/webmin/2.630/newkey-webmin_2.630_all.deb "
 DAI_PACKAGES=$DAI_PACKAGES"https://download.teamviewer.com/download/linux/teamviewer_amd64.deb "
 # DAI_PACKAGES=$DAI_PACKAGES"http://archive.getdeb.net/ubuntu/pool/apps/u/ubuntu-tweak/ubuntu-tweak_0.8.7-1~getdeb2~xenial_all.deb "
 
 echo
 echo Making DO list...
 # Packages to download only (DO)
-DO_PACKAGES="https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.34/bin/apache-tomcat-10.1.34.tar.gz "
-DO_PACKAGES=$DO_PACKAGES"https://updates.jenkins-ci.org/download/war/2.489/jenkins.war "
+DO_PACKAGES="https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.54/bin/apache-tomcat-10.1.54.zip "
+DO_PACKAGES=$DO_PACKAGES"https://updates.jenkins.io/download/war/2.562/jenkins.war "
 
 echo
 echo Making PPA list...
