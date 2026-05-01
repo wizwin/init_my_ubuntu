@@ -67,7 +67,7 @@ SHUTDOWN=0
 SHUTDOWN_DELAY=2
 
 # Enable logging
-LOGGING=0
+LOGGING=1
 
 # Run custom script in IMU
 RUN_CUSTOM_SCRIPT=0
@@ -126,7 +126,7 @@ $CMD_SIMULATION lsb_release -a >> $LOGGER 2>&1
 
 # Obselete pacakges
 APT_OBSELETE_PACKAGES="ctags eclipse-platform svn-workbench bum aptoncd colorgcc valkyrie grub-customizer apt-fast "
-APT_OBSELETE_PACKAGES=$APT_OBSELETE_PACKAGES"phablet-tools androidsdk-ddms python-networkx gnome-tweak-tool "
+APT_OBSELETE_PACKAGES=$APT_OBSELETE_PACKAGES"phablet-tools androidsdk-ddms python-networkx gnome-tweak-tool pcb-gtk "
 
 echo
 echo Making packages list...
@@ -139,11 +139,11 @@ echo + Basic packages
 APT_PACKAGES="openssh-server vim mc gcc g++ universal-ctags lynx expect ddd doxygen meld idle git gnupg codeblocks kodi arj
  autoconf automake apcupsd beep boinc-client cabextract cccc cdecl chromium-browser colormake crash cscope cowsay dkms
  dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad
- texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip pcb-gtk pidgin pterm putty rar samba screen smartmontools
+ texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip pidgin pterm putty rar samba screen smartmontools
  subversion synaptic tree tightvncserver unrar valgrind virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool
  gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave socat apt-file gitk git-gui sloccount cifs-utils
  minicom iotop preload ksh tlp tlp-rdw indicator-cpufreq selinux-utils sqlite3 moreutils testdisk python3-sphinx graphviz
- graphviz texlive-xetex repo bazel-bootstrap rustc cargo systune btop powertop ncdu tmux zoxide tldr tlp tlp-rdw neofetch
+ graphviz texlive-xetex repo bazel-bootstrap rustc cargo systune btop powertop ncdu tmux zoxide
  "
 
 #
@@ -246,6 +246,14 @@ function runPerPostInstall {
         fi
     elif [ "$1" == "vim" ] ; then
         echo "No post install steps..."
+    elif [ "$1" == "ttf-mscorefonts-installer" ] ; then
+        echo "Check if there are errors in MS Font install..."
+        dpkg --configure -a
+        if [ $? -eq 0 ] ; then
+	    echo "No issues. Continue..."
+	else
+	    dpkg -P "$1"
+	fi
     fi
 }
 
@@ -256,8 +264,8 @@ function runPostInstall {
     # Configuration specific to AOSP builds
     echo
     echo Update java links...
-    $CMD_SIMULATION update-alternatives --config java >> $LOGGER 2>&1
-    $CMD_SIMULATION update-alternatives --config javac >> $LOGGER 2>&1
+    $CMD_SIMULATION update-alternatives --auto java >> $LOGGER 2>&1
+    $CMD_SIMULATION update-alternatives --auto javac >> $LOGGER 2>&1
 
     dpkg --compare-versions "$UBUNTU_REL_VER" "eq" "12.04"
     if [ $? -eq 0 ] ; then
