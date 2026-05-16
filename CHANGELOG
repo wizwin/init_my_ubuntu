@@ -66,3 +66,16 @@ init_my_ubuntu - CHANGELOG
 ^ Support for Resolute Raccoon
 ^ Merge with previous uncommitted version
 + Added few more useful packages
+
+[v2.0] 16.05.2026
+
++ Added comprehensive installation reporting with success/failure metrics
++ Added SHA256 checksum verification for downloaded packages
++ Added retry mechanism for fixing broken dpkg installations
++ Added URL reachability checks for downloads and PPAs
++ Added total execution time tracking
++ Support for headless/non-interactive mode via debconf preseeding
+^ Migrated package and PPA lists to Bash arrays
+^ Enhanced Ubuntu version dependency logic via ge comparisons
+^ Refactored post-installation logic to use case statements
+^ Prevent redundant PPA additions by checking existing apt sources

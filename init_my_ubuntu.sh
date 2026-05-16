@@ -11,7 +11,7 @@
 # Author  : Winny Mathew Kurian (WiZarD)
 # Date    : 29th April 2026
 # Contact : WiZarD.Devel@gmail.com
-# Release : v1.9
+# Release : v2.0
 #
 # Version History
 ###############################################################################
@@ -39,6 +39,11 @@
 # v1.8       XX-XX-2024      Updated and organized packages
 # v1.9       29-04-2026      Updated for Ubuntu 26.04 Resolute Raccoon
 #                            Added more dev packages on new setup
+# v2.0       16-05-2026      Added execution report and improved logging
+#                            Added retry mechanism for fixing broken installations
+#                            Added URL reachability checks for downloads and PPAs
+#                            Added checksum verification for downloads
+#                            Added execution time tracking and reporting
 #
 # Had nothing more fun to do in my village, after seeing around :)
 #
@@ -80,6 +85,7 @@ LOG_FILE_PATH=./imu.log
 
 # Ubuntu release version
 UBUNTU_REL_VER=`lsb_release -r | cut -d ':' -f 2 | xargs`
+UBUNTU_CODENAME=`lsb_release -cs | xargs`
 
 echo
 printf "${GREEN}IMU${NORMAL} (e-moo) - Init My Ubuntu"
@@ -117,6 +123,7 @@ if [ $INTERACTIVE -eq 0 ] ; then
     # Non-interactive mode
     # APT_OPT_INTERACTIVE="-y --force-yes"
     APT_OPT_INTERACTIVE="-y --allow-unauthenticated"
+    export DEBIAN_FRONTEND=noninteractive
 fi
 
 APT_OPT_FLAGS="$APT_OPT_INTERACTIVE $APT_OPT_SIMULATION"
@@ -125,8 +132,10 @@ APT_OPT_FLAGS="$APT_OPT_INTERACTIVE $APT_OPT_SIMULATION"
 $CMD_SIMULATION lsb_release -a >> $LOGGER 2>&1
 
 # Obselete pacakges
-APT_OBSELETE_PACKAGES="ctags eclipse-platform svn-workbench bum aptoncd colorgcc valkyrie grub-customizer apt-fast "
-APT_OBSELETE_PACKAGES=$APT_OBSELETE_PACKAGES"phablet-tools androidsdk-ddms python-networkx gnome-tweak-tool pcb-gtk "
+APT_OBSELETE_PACKAGES=(
+    "ctags" "eclipse-platform" "svn-workbench" "bum" "aptoncd" "colorgcc" "valkyrie" "grub-customizer" "apt-fast"
+    "phablet-tools" "androidsdk-ddms" "python-networkx" "gnome-tweak-tool" "pcb-gtk"
+)
 
 echo
 echo Making packages list...
@@ -136,125 +145,130 @@ echo Making packages list...
 # Basic Packages
 #
 echo + Basic packages
-APT_PACKAGES="openssh-server vim mc gcc g++ universal-ctags lynx expect ddd doxygen meld idle git gnupg codeblocks kodi arj
- autoconf automake apcupsd beep boinc-client cabextract cccc cdecl chromium-browser colormake crash cscope cowsay dkms
- dosbox distcc electric-fence filezilla flex bison byobu nasm yasm gimp gnuplot-qt dos2unix indent keepass2 kicad
- texlive-latex-base mono-runtime nmap nautilus-dropbox p7zip pidgin pterm putty rar samba screen smartmontools
- subversion synaptic tree tightvncserver unrar valgrind virtualbox-qt wvdial wireshark gvncviewer wavemon unity-tweak-tool
- gparted virt-manager qemu-kvm gnome-control-center lm-sensors gtkwave socat apt-file gitk git-gui sloccount cifs-utils
- minicom iotop preload ksh tlp tlp-rdw indicator-cpufreq selinux-utils sqlite3 moreutils testdisk python3-sphinx graphviz
- graphviz texlive-xetex repo bazel-bootstrap rustc cargo systune btop powertop ncdu tmux zoxide
- "
+APT_PACKAGES=(
+    "openssh-server" "vim" "mc" "gcc" "g++" "universal-ctags" "lynx" "expect" "ddd" "doxygen" "meld" "idle" "git" "gnupg" "codeblocks" "kodi" "arj"
+    "autoconf" "automake" "apcupsd" "beep" "boinc-client" "cabextract" "cccc" "cdecl" "chromium-browser" "colormake" "crash" "cscope" "cowsay" "dkms"
+    "dosbox" "distcc" "electric-fence" "filezilla" "flex" "bison" "byobu" "nasm" "yasm" "gimp" "gnuplot-qt" "dos2unix" "indent" "keepass2" "kicad"
+    "texlive-latex-base" "mono-runtime" "nmap" "nautilus-dropbox" "p7zip" "pidgin" "pterm" "putty" "rar" "samba" "screen" "smartmontools"
+    "subversion" "synaptic" "tree" "tightvncserver" "unrar" "valgrind" "virtualbox-qt" "wvdial" "wireshark" "gvncviewer" "wavemon" "unity-tweak-tool"
+    "gparted" "virt-manager" "qemu-kvm" "gnome-control-center" "lm-sensors" "gtkwave" "socat" "apt-file" "gitk" "git-gui" "sloccount" "cifs-utils"
+    "minicom" "iotop" "preload" "ksh" "tlp" "tlp-rdw" "indicator-cpufreq" "selinux-utils" "sqlite3" "moreutils" "testdisk" "python3-sphinx" "graphviz"
+    "texlive-xetex" "repo" "bazel-bootstrap" "rustc" "cargo" "systune" "btop" "powertop" "ncdu" "tmux" "zoxide"
+)
 
 #
 # APT Packages with PPA dependencies
 #
 echo + PPA dependent packages
-APT_PACKAGES=$APT_PACKAGES$"apt-fast gnome-tweaks "
+APT_PACKAGES+=("apt-fast" "gnome-tweaks")
 
 # Squid Packages
 echo + Squid proxy packages
-APT_PACKAGES=$APT_PACKAGES"squid-deb-proxy squid-deb-proxy-client "
+APT_PACKAGES+=("squid-deb-proxy" "squid-deb-proxy-client")
 
 # APC UPS dependency
 echo + APC UPS dependencies
-APT_PACKAGES=$APT_PACKAGES"libgd2-xpm-dev "
+APT_PACKAGES+=("libgd2-xpm-dev")
 
 #
 # Android Development Packages (Common)
 #
 echo + Android development packages
-APT_PACKAGES=$APT_PACKAGES"ccache gnupg flex bison gperf build-essential zip curl tofrodos abootimg "
+APT_PACKAGES+=("ccache" "gnupg" "flex" "bison" "gperf" "build-essential" "zip" "curl" "tofrodos" "abootimg")
 
 #
 # Android Build Environment dependencies
 #
 echo + Ubuntu $UBUNTU_REL_VER specific
 
-dpkg --compare-versions "$UBUNTU_REL_VER" "eq" "24.04"
-if [ $? -eq 0 ] ; then
-    # Ubuntu 18.04, 22.04
-    APT_PACKAGES=$APT_PACKAGES"install git-core zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 libncurses5 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig "
-fi
-
-dpkg --compare-versions "$UBUNTU_REL_VER" "eq" "16.04"
-if [ $? -eq 0 ] ; then
-    # Ubuntu 14.04, 16.04
-    APT_PACKAGES=$APT_PACKAGES"openjdk-8-jdk gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev ccache libgl1-mesa-dev libxml2-utils xsltproc unzip libnss-sss:i386 "
-fi
-
-dpkg --compare-versions "$UBUNTU_REL_VER" "eq" "12.04"
-if [ $? -eq 0 ] ; then
-    # Ubuntu 12.04
-    APT_PACKAGES=$APT_PACKAGES"openjdk-7-jdk libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 python-markdown libxml2-utils xsltproc zlib1g-dev:i386 "
+if dpkg --compare-versions "$UBUNTU_REL_VER" "ge" "24.04"; then
+    # Ubuntu 24.04 and above (including 26.04)
+    APT_PACKAGES+=("git-core" "zlib1g-dev" "gcc-multilib" "g++-multilib" "libc6-dev-i386" "libncurses5" "lib32ncurses5-dev" "x11proto-core-dev" "libx11-dev" "lib32z1-dev" "libgl1-mesa-dev" "libxml2-utils" "xsltproc" "unzip" "fontconfig")
+elif dpkg --compare-versions "$UBUNTU_REL_VER" "ge" "16.04"; then
+    # Ubuntu 16.04 up to 22.04
+    APT_PACKAGES+=("gcc-multilib" "g++-multilib" "libc6-dev-i386" "lib32ncurses5-dev" "x11proto-core-dev" "libx11-dev" "lib32z-dev" "ccache" "libgl1-mesa-dev" "libxml2-utils" "xsltproc" "unzip" "libnss-sss:i386")
+elif dpkg --compare-versions "$UBUNTU_REL_VER" "ge" "12.04"; then
+    # Ubuntu 12.04 up to 14.04
+    APT_PACKAGES+=("libc6-dev" "libncurses5-dev:i386" "x11proto-core-dev" "libx11-dev:i386" "libreadline6-dev:i386" "libgl1-mesa-glx:i386" "libgl1-mesa-dev" "g++-multilib" "mingw32" "python-markdown" "libxml2-utils" "xsltproc" "zlib1g-dev:i386")
 fi
 
 # Webmin dependencies
 echo + Webmin dependencies
-APT_PACKAGES=$APT_PACKAGES"apt-show-versions libauthen-pam-perl "
+APT_PACKAGES+=("apt-show-versions" "libauthen-pam-perl")
 
 # Teamviewer dependencies
 echo + Teamviewer dependencies
-APT_PACKAGES=$APT_PACKAGES"lib32asound2 lib32z1 ia32-libs "
+APT_PACKAGES+=("lib32asound2" "lib32z1" "ia32-libs")
 
 # Tweak Ubuntu dedendencies
 echo + Tweak Ubuntu dependencies
-APT_PACKAGES=$APT_PACKAGES"python-xdg python-aptdaemon python-aptdaemon.gtk3widgets python-defer python-compizconfig gir1.2-gconf-2.0 gir1.2-webkit-3.0 "
+APT_PACKAGES+=("python-xdg" "python-aptdaemon" "python-aptdaemon.gtk3widgets" "python-defer" "python-compizconfig" "gir1.2-gconf-2.0" "gir1.2-webkit-3.0")
 
 # Kodi dependency
 echo + Kodi dependencies
-APT_PACKAGES=$APT_PACKAGES"software-properties-common "
+APT_PACKAGES+=("software-properties-common")
 
 # GNOME and extra tools
 echo + GNOME extra tools dependencies
-APT_PACKAGES=$APT_PACKAGES"ubuntu-restricted-extras "
+APT_PACKAGES+=("ubuntu-restricted-extras")
 
 # Third party PPA
 echo + Third party packages
-APT_PACKAGES=$APT_PACKAGES"timeshift "
+APT_PACKAGES+=("timeshift")
 
 echo
 echo Making DAI list...
 # Packages to download and install (DAI)
-DAI_PACKAGES="https://excellmedia.dl.sourceforge.net/project/webadmin/webmin/2.630/newkey-webmin_2.630_all.deb "
-DAI_PACKAGES=$DAI_PACKAGES"https://download.teamviewer.com/download/linux/teamviewer_amd64.deb "
-# DAI_PACKAGES=$DAI_PACKAGES"http://archive.getdeb.net/ubuntu/pool/apps/u/ubuntu-tweak/ubuntu-tweak_0.8.7-1~getdeb2~xenial_all.deb "
+# Format: "URL SHA256SUM" (Use "SKIP" to bypass verification)
+DAI_PACKAGES=(
+    "https://excellmedia.dl.sourceforge.net/project/webadmin/webmin/2.630/newkey-webmin_2.630_all.deb SKIP"
+    "https://download.teamviewer.com/download/linux/teamviewer_amd64.deb SKIP"
+    # "http://archive.getdeb.net/ubuntu/pool/apps/u/ubuntu-tweak/ubuntu-tweak_0.8.7-1~getdeb2~xenial_all.deb"
+)
 
 echo
 echo Making DO list...
 # Packages to download only (DO)
-DO_PACKAGES="https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.54/bin/apache-tomcat-10.1.54.zip "
-DO_PACKAGES=$DO_PACKAGES"https://updates.jenkins.io/download/war/2.562/jenkins.war "
+# Format: "URL SHA256SUM" (Use "SKIP" to bypass verification)
+DO_PACKAGES=(
+    "https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.54/bin/apache-tomcat-10.1.54.zip SKIP"
+    "https://updates.jenkins.io/download/war/2.562/jenkins.war SKIP"
+)
 
 echo
 echo Making PPA list...
 # Add all PPAs here
-APT_PPAS="ppa:tualatrix/ppa ppa:team-xbmc/ppa "
-APT_PPAS=$APT_PPAS"ppa:apt-fast/stable "
-APT_PPAS=$APT_PPAS"ppa:linrunner/tlp ppa:teejee2008/ppa "
-APT_PPAS=$APT_PPAS"universe "
+APT_PPAS=(
+    "ppa:tualatrix/ppa"
+    "ppa:team-xbmc/ppa"
+    "ppa:apt-fast/stable"
+    "ppa:linrunner/tlp"
+    "ppa:teejee2008/ppa"
+    "universe"
+)
 
 function runPerPostInstall {
-    if [ "$1" == "squid-deb-proxy" ] ; then
-        # Check if squid is running.
-        # TODO: Make sure it is squid deb proxy
-        pidof squid3 > /dev/null
-        if [ $? -ne 0 ] ; then
-            echo
-            echo Starting squid deb proxy for caching...
-            #/etc/init.d/squid-deb-proxy start
-        fi
-    elif [ "$1" == "vim" ] ; then
-        echo "No post install steps..."
-    elif [ "$1" == "ttf-mscorefonts-installer" ] ; then
-        echo "Check if there are errors in MS Font install..."
-        dpkg --configure -a
-        if [ $? -eq 0 ] ; then
-	    echo "No issues. Continue..."
-	else
-	    dpkg -P "$1"
-	fi
-    fi
+    case "$1" in
+        squid-deb-proxy)
+            # Check if squid is running.
+            # TODO: Make sure it is squid deb proxy
+            pidof squid3 > /dev/null
+            if [ $? -ne 0 ] ; then
+                echo
+                echo Starting squid deb proxy for caching...
+                #/etc/init.d/squid-deb-proxy start
+            fi
+            ;;
+        ttf-mscorefonts-installer)
+            echo "Check if there are errors in MS Font install..."
+            dpkg --configure -a
+            if [ $? -eq 0 ] ; then
+                echo "No issues. Continue..."
+            else
+                dpkg -P "$1"
+            fi
+            ;;
+    esac
 }
 
 function runPostInstall {
@@ -313,29 +327,54 @@ function processDAIPackages {
     echo
     echo "Process DAI packages..."
     # Process DAI packages
-    for DAI_PACKAGE in $DAI_PACKAGES; do
-        PACKAGE_NAME=`basename $DAI_PACKAGE`
-        if [ -e $DOWNLOAD_PATH/$PACKAGE_NAME ] ; then
+    for DAI_ENTRY in "${DAI_PACKAGES[@]}"; do
+        read -r DAI_PACKAGE DAI_CHECKSUM <<< "$DAI_ENTRY"
+        PACKAGE_NAME=`basename "$DAI_PACKAGE"`
+        if [ -e "$DOWNLOAD_PATH/$PACKAGE_NAME" ] ; then
             echo
             printf "Using existing package $PACKAGE_NAME... "
+            WGET_STATUS=0
+            DUR_STR="0s"
         else
             echo
             printf "%-40s" "Download $PACKAGE_NAME... "
-            $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE >> $LOGGER 2>&1
+            PKG_START=$SECONDS
+            $CMD_SIMULATION wget -N -P "$DOWNLOAD_PATH" "$DAI_PACKAGE" >> $LOGGER 2>&1
+            WGET_STATUS=$?
+            PKG_DUR=$((SECONDS - PKG_START))
+            if [ $PKG_DUR -ge 60 ]; then DUR_STR="$((PKG_DUR / 60))m $((PKG_DUR % 60))s"; else DUR_STR="${PKG_DUR}s"; fi
         fi
 
-        if [ $? -eq 0 ] ; then
-            printf "${GREEN}Done\n${NORMAL}"
+        if [ $WGET_STATUS -eq 0 ] ; then
+            printf "${GREEN}Done ($DUR_STR)${NORMAL}\n"
+
+            # Checksum Verification
+            if [ -n "$DAI_CHECKSUM" ] && [ "$DAI_CHECKSUM" != "SKIP" ]; then
+                echo
+                printf "%-40s" "Verify checksum for $PACKAGE_NAME... "
+                if $CMD_SIMULATION echo "$DAI_CHECKSUM  $DOWNLOAD_PATH/$PACKAGE_NAME" | $CMD_SIMULATION sha256sum -c --quiet - >> $LOGGER 2>&1; then
+                     printf "${GREEN}OK\n${NORMAL}"
+                else
+                     printf "${RED}Failed!\n${NORMAL}"
+                     echo "Checksum mismatch for $PACKAGE_NAME! Skipping installation." >> $LOGGER
+                     continue
+                fi
+            fi
+
             echo
             printf "%-40s" "Install $DAI_PACKAGE... "
-            $CMD_SIMULATION dpkg -i $DOWNLOAD_PATH/$PACKAGE_NAME >> $LOGGER 2>&1
-            if [ $? -eq 0 ] ; then
-                printf "${GREEN}Done\n${NORMAL}"
+            PKG_START=$SECONDS
+            $CMD_SIMULATION dpkg -i "$DOWNLOAD_PATH/$PACKAGE_NAME" >> $LOGGER 2>&1
+            DPKG_STATUS=$?
+            PKG_DUR=$((SECONDS - PKG_START))
+            if [ $PKG_DUR -ge 60 ]; then DUR_STR="$((PKG_DUR / 60))m $((PKG_DUR % 60))s"; else DUR_STR="${PKG_DUR}s"; fi
+            if [ $DPKG_STATUS -eq 0 ] ; then
+                printf "${GREEN}Done ($DUR_STR)${NORMAL}\n"
             else
-                printf "${RED}Failed!\n${NORMAL}"
+                printf "${RED}Failed! ($DUR_STR)${NORMAL}\n"
             fi
         else
-            printf "${RED}Failed!\n${NORMAL}"
+            printf "${RED}Failed! ($DUR_STR)${NORMAL}\n"
         fi
     done
 }
@@ -344,15 +383,49 @@ function processDOPackages {
     echo
     echo "Process DO packages..."
     # Process DO packages
-    for DO_PACKAGE in $DO_PACKAGES; do
-        PACKAGE_NAME=`basename $DO_PACKAGE`
-        if [ -e $DOWNLOAD_PATH/$PACKAGE_NAME ] ; then
+    for DO_ENTRY in "${DO_PACKAGES[@]}"; do
+        read -r DO_PACKAGE DO_CHECKSUM <<< "$DO_ENTRY"
+        PACKAGE_NAME=`basename "$DO_PACKAGE"`
+        if [ -e "$DOWNLOAD_PATH/$PACKAGE_NAME" ] ; then
             echo
             printf "Package already downloaded: $PACKAGE_NAME..."
+            WGET_STATUS=0
         else
             echo
             printf "%-40s" "Download $PACKAGE_NAME... "
-            $CMD_SIMULATION wget -N -P $DOWNLOAD_PATH $DAI_PACKAGE >> $LOGGER 2>&1
+            PKG_START=$SECONDS
+
+            # Verify URL reachability before downloading
+            if ! $CMD_SIMULATION wget -q --spider --timeout=5 "$DO_PACKAGE" >> $LOGGER 2>&1; then
+                PKG_DUR=$((SECONDS - PKG_START))
+                if [ $PKG_DUR -ge 60 ]; then DUR_STR="$((PKG_DUR / 60))m $((PKG_DUR % 60))s"; else DUR_STR="${PKG_DUR}s"; fi
+                printf "${RED}Unreachable! ($DUR_STR)${NORMAL}\n"
+                echo "URL $DO_PACKAGE is unreachable." >> $LOGGER
+                REPORT_FAILED_DO+=("$PACKAGE_NAME (unreachable)")
+                continue
+            fi
+
+            $CMD_SIMULATION wget -N -P "$DOWNLOAD_PATH" "$DO_PACKAGE" >> $LOGGER 2>&1
+            WGET_STATUS=$?
+            PKG_DUR=$((SECONDS - PKG_START))
+            if [ $PKG_DUR -ge 60 ]; then DUR_STR="$((PKG_DUR / 60))m $((PKG_DUR % 60))s"; else DUR_STR="${PKG_DUR}s"; fi
+            if [ $WGET_STATUS -eq 0 ]; then
+                printf "${GREEN}Done ($DUR_STR)${NORMAL}\n"
+            else
+                printf "${RED}Failed! ($DUR_STR)${NORMAL}\n"
+            fi
+        fi
+
+        if [ $WGET_STATUS -eq 0 ] && [ -n "$DO_CHECKSUM" ] && [ "$DO_CHECKSUM" != "SKIP" ]; then
+            echo
+            printf "%-40s" "Verify checksum for $PACKAGE_NAME... "
+            if $CMD_SIMULATION echo "$DO_CHECKSUM  $DOWNLOAD_PATH/$PACKAGE_NAME" | $CMD_SIMULATION sha256sum -c --quiet - >> $LOGGER 2>&1; then
+                printf "${GREEN}OK\n${NORMAL}"
+            else
+                printf "${RED}Failed!\n${NORMAL}"
+                echo "Checksum mismatch for $PACKAGE_NAME! Removing invalid file." >> $LOGGER
+                $CMD_SIMULATION rm -f "$DOWNLOAD_PATH/$PACKAGE_NAME"
+            fi
         fi
     done
 }
@@ -360,9 +433,37 @@ function processDOPackages {
 function updatePPAs {
     echo
     echo "Updating PPAs..."
-    for APT_PPA in $APT_PPAS; do
+    for APT_PPA in "${APT_PPAS[@]}"; do
         echo
         printf "%-40s" "Adding PPA: $APT_PPA... "
+
+        # Check if PPA is already added
+        PPA_EXISTS=1
+        if [[ "$APT_PPA" == ppa:* ]]; then
+            PPA_REPO="${APT_PPA#ppa:}"
+
+            # Verify reachability/compatibility before adding
+            PPA_URL="https://ppa.launchpadcontent.net/$PPA_REPO/ubuntu/dists/$UBUNTU_CODENAME/Release"
+            if ! $CMD_SIMULATION wget -q --spider --timeout=5 "$PPA_URL" >> $LOGGER 2>&1; then
+                printf "${RED}Unreachable!${NORMAL}\n"
+                echo "PPA $APT_PPA is unreachable or unsupported on Ubuntu $UBUNTU_CODENAME." >> $LOGGER
+                REPORT_FAILED_PPA+=("$APT_PPA (unreachable)")
+                continue
+            fi
+
+            grep -qrE "ppa\.launchpad(content)?\.net/$PPA_REPO" /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null
+            PPA_EXISTS=$?
+        else
+            grep -qrE "^deb .*\s$APT_PPA(\s|$)" /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null
+            PPA_EXISTS=$?
+        fi
+
+        if [ $PPA_EXISTS -eq 0 ]; then
+            printf "${GREEN}Already added${NORMAL}\n"
+            REPORT_SUCCESS_PPA=$((REPORT_SUCCESS_PPA + 1))
+            continue
+        fi
+
         $CMD_SIMULATION add-apt-repository -y $APT_PPA >> $LOGGER 2>&1
         if [ $? -eq 0 ] ; then
             printf "${GREEN}Done\n${NORMAL}"
@@ -375,17 +476,79 @@ function updatePPAs {
 function installPackages {
     echo
     echo "Installing software packages..."
-    for APT_PACKAGE in $APT_PACKAGES; do
+    for APT_PACKAGE in "${APT_PACKAGES[@]}"; do
         echo
         printf "%-40s" "Install $APT_PACKAGE... "
+        PKG_START=$SECONDS
         apt-get $APT_OPT_FLAGS install $APT_PACKAGE >> $LOGGER 2>&1
-        if [ $? -eq 0 ] ; then
-            printf "${GREEN}Done\n${NORMAL}"
+        APT_STATUS=$?
+        PKG_DUR=$((SECONDS - PKG_START))
+        if [ $PKG_DUR -ge 60 ]; then DUR_STR="$((PKG_DUR / 60))m $((PKG_DUR % 60))s"; else DUR_STR="${PKG_DUR}s"; fi
+        if [ $APT_STATUS -eq 0 ] ; then
+            printf "${GREEN}Done ($DUR_STR)${NORMAL}\n"
             $CMD_SIMULATION runPerPostInstall $APT_PACKAGE
+            REPORT_SUCCESS_APT=$((REPORT_SUCCESS_APT + 1))
         else
-            printf "${RED}Failed!\n${NORMAL}"
+            printf "${RED}Failed! ($DUR_STR)${NORMAL}\n"
+            REPORT_FAILED_APT+=("$APT_PACKAGE")
         fi
     done
+}
+
+function generateReport {
+    echo
+    echo "==============================================================================="
+    echo "                               INSTALLATION REPORT                             "
+    echo "==============================================================================="
+    echo
+    printf "%-30s : %d\n" "APT Packages Installed" "$REPORT_SUCCESS_APT"
+    printf "%-30s : %d\n" "DAI Packages Installed" "$REPORT_SUCCESS_DAI"
+    printf "%-30s : %d\n" "DO Packages Downloaded" "$REPORT_SUCCESS_DO"
+    printf "%-30s : %d\n" "PPAs Added" "$REPORT_SUCCESS_PPA"
+    
+    if [ ${#REPORT_FAILED_APT[@]} -gt 0 ] || [ ${#REPORT_FAILED_DAI[@]} -gt 0 ] || [ ${#REPORT_FAILED_DO[@]} -gt 0 ] || [ ${#REPORT_FAILED_PPA[@]} -gt 0 ]; then
+        echo
+        echo "-------------------------------------------------------------------------------"
+        printf "${RED}FAILURES DETECTED${NORMAL}\n"
+        echo "-------------------------------------------------------------------------------"
+        
+        if [ ${#REPORT_FAILED_PPA[@]} -gt 0 ]; then
+            echo "Failed PPAs:"
+            for fail in "${REPORT_FAILED_PPA[@]}"; do
+                echo "  - $fail"
+            done
+            echo
+        fi
+
+        if [ ${#REPORT_FAILED_APT[@]} -gt 0 ]; then
+            echo "Failed APT Packages:"
+            for fail in "${REPORT_FAILED_APT[@]}"; do
+                echo "  - $fail"
+            done
+            echo
+        fi
+
+        if [ ${#REPORT_FAILED_DAI[@]} -gt 0 ]; then
+            echo "Failed DAI Packages (Download And Install):"
+            for fail in "${REPORT_FAILED_DAI[@]}"; do
+                echo "  - $fail"
+            done
+            echo
+        fi
+
+        if [ ${#REPORT_FAILED_DO[@]} -gt 0 ]; then
+            echo "Failed DO Packages (Download Only):"
+            for fail in "${REPORT_FAILED_DO[@]}"; do
+                echo "  - $fail"
+            done
+            echo
+        fi
+    else
+        echo
+        echo "-------------------------------------------------------------------------------"
+        printf "${GREEN}ALL OPERATIONS COMPLETED SUCCESSFULLY!${NORMAL}\n"
+        echo "-------------------------------------------------------------------------------"
+    fi
 }
 
 ####
@@ -399,12 +562,35 @@ $CMD_SIMULATION apt-get update >> $LOGGER 2>&1
 # Before we start let's fix any broken installations
 echo
 echo "Fix broken installations (if any)..."
-#
-# Handle MS TTF installer EULA
-#
-$CMD_SIMULATION echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | $CMD_SIMULATION sudo debconf-set-selections >> $LOGGER 2>&1
-$CMD_SIMULATION dpkg --configure -a --force-configure-any >> $LOGGER 2>&1
-$CMD_SIMULATION apt-get --fix-broken -y install >> $LOGGER 2>&1
+
+if [ $INTERACTIVE -eq 0 ]; then
+    # Preseed answers for interactive prompts
+    $CMD_SIMULATION echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | $CMD_SIMULATION sudo debconf-set-selections >> $LOGGER 2>&1
+    $CMD_SIMULATION echo wireshark-common wireshark-common/install-setuid boolean true | $CMD_SIMULATION sudo debconf-set-selections >> $LOGGER 2>&1
+fi
+
+MAX_RETRIES=3
+RETRY_COUNT=0
+FIX_SUCCESS=0
+
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    $CMD_SIMULATION dpkg --configure -a --force-configure-any >> $LOGGER 2>&1
+    DPKG_STATUS=$?
+    $CMD_SIMULATION apt-get --fix-broken -y install >> $LOGGER 2>&1
+    APT_STATUS=$?
+
+    if [ $DPKG_STATUS -eq 0 ] && [ $APT_STATUS -eq 0 ]; then
+        FIX_SUCCESS=1
+        break
+    fi
+
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    echo "Retrying to fix broken installations (Attempt $RETRY_COUNT/$MAX_RETRIES)..."
+done
+
+if [ $FIX_SUCCESS -eq 0 ]; then
+    printf "${RED}Warning: Could not completely fix broken installations after $MAX_RETRIES attempts.${NORMAL}\n"
+fi
 
 # Make a download directory
 $CMD_SIMULATION mkdir -p $DOWNLOAD_PATH
@@ -427,12 +613,23 @@ processDOPackages
 # Run all post install operations
 $CMD_SIMULATION runPostInstall
 
+# Generate final installation report
+{
+    generateReport
+
+    EXEC_MINS=$((SECONDS / 60))
+    EXEC_SECS=$((SECONDS % 60))
+    echo "-------------------------------------------------------------------------------"
+    printf "%-30s : %dm %ds\n" "Total Execution Time" "$EXEC_MINS" "$EXEC_SECS"
+    echo "==============================================================================="
+} | tee -a "$LOGGER"
+
 echo
 echo Done... See you after next install!
 echo
 
 END_TIME=`date` >> $LOGGER
-echo "IMU completed at: $START_TIME" >> $LOGGER 2>&1
+echo "IMU completed at: $END_TIME" >> $LOGGER 2>&1
 
 if [ $SHUTDOWN -eq 1 ] ; then
     echo System will shutdown in $SHUTDOWN_DELAY minutes.
@@ -440,4 +637,3 @@ if [ $SHUTDOWN -eq 1 ] ; then
     echo
     $CMD_SIMULATION shutdown -h +$SHUTDOWN_DELAY &
 fi
-
